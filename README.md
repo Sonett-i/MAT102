@@ -1,6 +1,9 @@
 # MAT102
 
-Applied maths learned from the MAT102 unit from Torrens University Australia. 
+Applied maths learned from the MAT102 unit. Torrens University Australia. 
+
+## Requirements
+* Unity 2022.3.8f1
 
 ***
 
