@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ServerUtils;
-using MathU;
+using LinearInterpolation;
 
 public class Server : MonoBehaviour
 {
@@ -72,9 +72,8 @@ public class Server : MonoBehaviour
 
 	void HandleMovement()
 	{
-		//Vector3 estimatedPosition = LinearInterpolation.Extrapolate(oldPosition, networkPosition + VelocityVector, (1 + lastLatency) * ExtrapolationFactor);
-
-		transform.position = LinearInterpolation.Lerp(oldPosition, networkPosition, Time.deltaTime * remoteSpeed);
+		Vector3 estimatedPosition = LinearInterpolation.LinearInterpolation.Extrapolate(oldPosition, networkPosition + VelocityVector, (1 + lastLatency) * ExtrapolationFactor);
+		transform.position = LinearInterpolation.LinearInterpolation.Lerp(oldPosition, estimatedPosition, Time.deltaTime * remoteSpeed);
 	}
 
 	private void FixedUpdate()

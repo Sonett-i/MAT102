@@ -1,16 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MathU;
+using MathU.Matrices;
+using LinearInterpolation;
 
 public class TestSettings : MonoBehaviour
 {
-
-	[SerializeField][Range(0, 1)] float T = 0.0f;
-
-	[SerializeField] float StartPos = 10;
-	[SerializeField] float End = 20;
-
 	[SerializeField] GameObject[] objects;
 	[SerializeField][Range(0,1200)] float angle = 0;
 
@@ -60,11 +55,12 @@ public class TestSettings : MonoBehaviour
 	{
 		Vector3 Start = new Vector3(0, 0, 0);
 
-		float Radians = (float)Math.Rad(angle);
+		float Radians = (float)Operations.Rad(angle);
 		float result = angle / 1200;
 		Vector3 End = new Vector3(Radians, Mathf.Sin(Radians), 0);
 		Debug.Log(Radians + " " + angle + " " + result);
-		gobject.transform.position = LinearInterpolation.Lerp(Start, End, result);
+		gobject.transform.position = LinearInterpolation.LinearInterpolation.Lerp(Start, End, result);
+		
 	}
 
 	IEnumerator SlowGen()
@@ -120,12 +116,12 @@ public class TestSettings : MonoBehaviour
 		int y = image.width - 1 + (iterator % image.height);
 
 		Color endColour = image.GetPixel(x, y);
-		float r = LinearInterpolation.Lerp(currentCanvas[iterator].r, endColour.r, t);
-		float g = LinearInterpolation.Lerp(currentCanvas[iterator].g, endColour.g, t);
-		float b = LinearInterpolation.Lerp(currentCanvas[iterator].b, endColour.b, t);
+		float r = LinearInterpolation.LinearInterpolation.Lerp(currentCanvas[iterator].r, endColour.r, t);
+		float g = LinearInterpolation.LinearInterpolation.Lerp(currentCanvas[iterator].g, endColour.g, t);
+		float b = LinearInterpolation.LinearInterpolation.Lerp(currentCanvas[iterator].b, endColour.b, t);
 
 		go.GetComponent<MeshRenderer>().material.color = new Color(r, g, b);
-		go.transform.rotation = Quaternion.Euler(new Vector3(-90, 0, LinearInterpolation.Lerp(startAngle, endAngle, t)));
+		go.transform.rotation = Quaternion.Euler(new Vector3(-90, 0, LinearInterpolation.LinearInterpolation.Lerp(startAngle, endAngle, t)));
 
 	}
 
@@ -201,11 +197,11 @@ public class TestSettings : MonoBehaviour
 			{
 				if (itr == 0)
 				{
-					Camera.main.transform.position = LinearInterpolation.Lerp(cameraStart, cameraEnd, t/Duration);
+					Camera.main.transform.position = LinearInterpolation.LinearInterpolation.Lerp(cameraStart, cameraEnd, t/Duration);
 				}
 				else
 				{
-					Camera.main.transform.position = LinearInterpolation.Lerp(cameraEnd, cameraStart, t/Duration);
+					Camera.main.transform.position = LinearInterpolation.LinearInterpolation.Lerp(cameraEnd, cameraStart, t/Duration);
 				}
 				t += Time.deltaTime;
 				yield return new WaitForSeconds(Time.deltaTime);

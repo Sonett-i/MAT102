@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MathU
+namespace LinearInterpolation
 {
 	public class LinearInterpolation
 	{
