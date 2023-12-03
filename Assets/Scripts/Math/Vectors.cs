@@ -1,15 +1,16 @@
 using System;
 using MathU.Matrices;
+using UnityEngine;
 
 namespace MathU
 {
 	public struct Vector3
 	{
-		public double x;
-		public double y;
-		public double z;
+		public float x;
+		public float y;
+		public float z;
 
-		public Vector3(double _x, double _y, double _z)
+		public Vector3(float _x, float _y, float _z)
 		{
 			x = _x;
 			y = _y;
@@ -113,6 +114,11 @@ namespace MathU
 		public override string ToString()
 		{
 			return new string($"{x}, {y}, {z}");
+		}
+
+		public UnityEngine.Vector3 ToUnity()
+		{
+			return new UnityEngine.Vector3((float)this.x, (float)this.y, (float)this.z);
 		}
 	}
 }

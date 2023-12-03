@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using MathU.Matrices;
 using LinearInterpolation;
+using MathU.Matrices;
+using TMPro;
 
 public class TestSettings : MonoBehaviour
 {
+
+	
 	[SerializeField] GameObject[] objects;
 	[SerializeField][Range(0,1200)] float angle = 0;
 
@@ -37,19 +41,6 @@ public class TestSettings : MonoBehaviour
 	[SerializeField] bool StaticCamera = false;
 
 	Color[] currentCanvas;
-	void OnValidate()
-	{
-		//Debug.Log(LinearInterpolation.Lerp(StartPos, End, t));
-		/*
-		if (objects.Length > 0)
-		{
-			for (int i = 0; i < objects.Length; i++)
-			{
-				MoveObject(objects[i]);
-			}
-		}
-		*/
-	}
 
 	void MoveObject(GameObject gobject)
 	{
@@ -125,6 +116,33 @@ public class TestSettings : MonoBehaviour
 
 	}
 
+	IEnumerator Rotate(GameObject go, float t)
+	{
+		yield return new WaitForSeconds(Time.deltaTime * drawSpeed);
+
+		Debug.Log(360 * t);
+
+		float angleDegrees = (360 * t) * Mathf.Deg2Rad;
+
+		Quaternion qX = new Quaternion(0, 0, 0, angleDegrees);
+		Quaternion qY = new Quaternion(0, 0, 0, angleDegrees);
+		Quaternion qZ = new Quaternion(0, 0, 1, angleDegrees);
+
+		Quaternion qL = qZ * qY * qX;
+
+		Quaternion q = Quaternion.Euler(-90, angleDegrees, 0);
+
+		Matrix mQ = Matrix.Rotate(Quaternion.Inverse(qL));
+
+		MathU.Vector3 vec = new MathU.Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z);
+
+		Matrix vT = vec.ToColumn();
+		Matrix vR = mQ * vT;
+
+		go.transform.position = vR.ToVector().ToUnity();
+		go.transform.rotation = q;
+	}
+
 	IEnumerator Transition(GameObject[] canvas)
 	{
 		if (time >= 1.0f)
@@ -144,6 +162,7 @@ public class TestSettings : MonoBehaviour
 		for (int i = 0; i < canvas.Length; i++)
 		{
 			StartCoroutine(ChangePixel(canvas[i], i, time, image[iSwitch]));
+			StartCoroutine(Rotate(canvas[i], time));
 			if (i % 100 == 0) // Pause every 100 iterations.
 			{
 				yield return new WaitForSeconds(0.01f);

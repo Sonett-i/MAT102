@@ -19,7 +19,7 @@ namespace MathU.Matrices
 
 		public Matrix(Quaternion quat)
 		{
-			this = Matrix.Identity(3);
+			this = Matrix.Identity(4);
 			this[0, 0] -= 2 * (quat.y * quat.y) - 2 * (quat.z * quat.z);
 			this[0, 1] = 2 * (quat.x * quat.y) + 2 * (quat.w * quat.z);
 			this[0, 2] = 2 * (quat.x * quat.z) - 2 * (quat.w * quat.y);
@@ -31,6 +31,8 @@ namespace MathU.Matrices
 			this[2, 0] = 2 * (quat.x * quat.z) + 2 * (quat.w * quat.y);
 			this[2, 1] = 2 * (quat.y * quat.z) - 2 * (quat.w * quat.x);
 			this[2, 2] -= 2 * (quat.x * quat.x) - 2 * (quat.y * quat.y);
+
+
 		}
 
 		public override string ToString()
@@ -276,25 +278,6 @@ namespace MathU.Matrices
 			return transposed;
 		}
 
-		/*
-		public double Determinant()
-		{
-			if (rows == 3 && cols == 3)
-			{
-				double result = 0;
-
-				result = +data[0, 0] * ((data[1,1] * data[2,2]) - (data[1,2] * data[2, 1]));
-				result += -data[0, 1] * ((data[1, 0] * data[2, 2]) - (data[1, 2] * data[2, 0]));
-				result += +data[0, 2] * ((data[1,0] * data[2,1]) - (data[1, 1] * data[2, 0]));
-				return result;
-			}
-			else
-			{
-				throw new Exception("Cannot determine the determinant");
-			}
-		}
-		*/
-
 		public double Determinant()
 		{
 			return Determinant(this);
@@ -314,7 +297,6 @@ namespace MathU.Matrices
 			}
 			else
 			{
-
 				for (int col = 0; col < m.cols; col++)
 				{
 					int sign = -1;
@@ -324,9 +306,7 @@ namespace MathU.Matrices
 					}
 
 					d += sign * m.data[0, col] * Determinant(m.SubMatrix(0, col));
-
 				}
-
 			}
 			return d;
 		}
@@ -363,6 +343,29 @@ namespace MathU.Matrices
 
 			return result;
 		}
+
+		public static Matrix Rotate(UnityEngine.Vector3 vector)
+		{
+			Matrix xR = Rotation(vector.x, "x");
+			Matrix yR = Rotation(vector.y, "y");
+			Matrix zR = Rotation(vector.z, "z");
+
+
+			return zR * yR * xR;
+
+		}
+
+		public static Matrix Rotate(UnityEngine.Quaternion quat)
+		{
+			Matrix xR = Rotation(quat.x, "x");
+			Matrix yR = Rotation(quat.y, "y");
+			Matrix zR = Rotation(quat.z, "z");
+
+
+			return zR * yR * xR;
+
+		}
+
 		public static Matrix Rotation(float angle, string axis)
 		{
 			Matrix result = Matrix.Identity(3);
@@ -466,6 +469,15 @@ namespace MathU.Matrices
 			P[2, 2] += (-1 - 1) * (n.z * n.z);
 
 			return P;
+		}
+
+		public Vector3 ToVector()
+		{
+			if (this.rows == 3 && this.cols == 1)
+			{
+				return new Vector3((float)this[0, 0], (float)this[1, 0], (float)this[2, 0]);
+			}
+			return new Vector3(0, 0, 0);
 		}
 	}
 }
