@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using MathU.Matrices;
 using LinearInterpolation;
-using MathU.Matrices;
-using TMPro;
+using UnityEngine.UI;
+
 
 public class TestSettings : MonoBehaviour
 {
+	[SerializeField] Vector3 CanvasOffset;
 
+	[SerializeField] GameObject guide;
+
+	[SerializeField] GameObject Text;
 	
 	[SerializeField] GameObject[] objects;
 	[SerializeField][Range(0,1200)] float angle = 0;
@@ -28,9 +32,6 @@ public class TestSettings : MonoBehaviour
 	int iSwitch = 0;
 	float time = 0f;
 
-	[SerializeField] float startAngle = 0;
-	[SerializeField] float endAngle = 360;
-
 	int itr = 0;
 
 	[SerializeField] Vector3 cameraStart = new Vector3(35, 35, -1000);
@@ -39,8 +40,11 @@ public class TestSettings : MonoBehaviour
 
 	[SerializeField] bool SlowGenerate = false;
 	[SerializeField] bool StaticCamera = false;
+	[SerializeField] bool rotates = true;
 
 	Color[] currentCanvas;
+
+	Matrix[] TransformMatrices;
 
 	void MoveObject(GameObject gobject)
 	{
@@ -112,64 +116,92 @@ public class TestSettings : MonoBehaviour
 		float b = LinearInterpolation.LinearInterpolation.Lerp(currentCanvas[iterator].b, endColour.b, t);
 
 		go.GetComponent<MeshRenderer>().material.color = new Color(r, g, b);
-		go.transform.rotation = Quaternion.Euler(new Vector3(-90, 0, LinearInterpolation.LinearInterpolation.Lerp(startAngle, endAngle, t)));
-
 	}
 
-	IEnumerator Rotate(GameObject go, float t)
+	string rM = "";
+
+	void RotateM(GameObject go, float angle)
 	{
-		yield return new WaitForSeconds(Time.deltaTime * drawSpeed);
+		float angleD = angle * Mathf.Deg2Rad;
 
-		Debug.Log(360 * t);
+		// Transform Position
+		Matrix mQ = Matrix.Rotation(angleD, "z");
 
-		float angleDegrees = (360 * t) * Mathf.Deg2Rad;
-
-		Quaternion qX = new Quaternion(0, 0, 0, angleDegrees);
-		Quaternion qY = new Quaternion(0, 0, 0, angleDegrees);
-		Quaternion qZ = new Quaternion(0, 0, 1, angleDegrees);
-
-		Quaternion qL = qZ * qY * qX;
-
-		Quaternion q = Quaternion.Euler(-90, angleDegrees, 0);
-
-		Matrix mQ = Matrix.Rotate(Quaternion.Inverse(qL));
-
-		MathU.Vector3 vec = new MathU.Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z);
-
-		Matrix vT = vec.ToColumn();
+		Matrix vT = new MathU.Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z).ToColumn();
 		Matrix vR = mQ * vT;
 
+		rM = mQ.ToString();
+		
+		// Transform Rotation
 		go.transform.position = vR.ToVector().ToUnity();
+
+		Quaternion qX = Quaternion.Euler(-90, 0, 0);
+		Quaternion qY = Quaternion.Euler(0, 0, 0);
+		Quaternion qZ = Quaternion.Euler(0, 0, angleI);
+
+		Quaternion q = qZ * qX * qY;
 		go.transform.rotation = q;
 	}
 
+	void RotateQ(GameObject go, float angle)
+	{
+
+	}
+
+	int angleI = 0;
+	int oldAngle = 0;
+	string output = "";
+
 	IEnumerator Transition(GameObject[] canvas)
 	{
-		if (time >= 1.0f)
+		while (true)
 		{
-			time = 0f;
-			GetPixelColours(image[iSwitch]);
-			iSwitch++;
-		}
+			yield return new WaitForSeconds(0.2f);
 
-		if (iSwitch >= image.Length)
-		{
-			iSwitch = 0;
-		}
-		time += Time.deltaTime;
+			float eulerAngle = angleI - oldAngle * (Mathf.PI / 180);
 
-		Debug.Log($"{iSwitch}");
-		for (int i = 0; i < canvas.Length; i++)
-		{
-			StartCoroutine(ChangePixel(canvas[i], i, time, image[iSwitch]));
-			StartCoroutine(Rotate(canvas[i], time));
-			if (i % 100 == 0) // Pause every 100 iterations.
+			if (angleI > 360)
+				angleI = 0;
+
+			if (time >= 1.0f)
 			{
-				yield return new WaitForSeconds(0.01f);
+				time = 0f;
+				GetPixelColours(image[iSwitch]);
+				iSwitch++;
 			}
+
+			if (iSwitch >= image.Length)
+			{
+				iSwitch = 0;
+			}
+
+			time += Time.deltaTime;
+
+			output = angleI.ToString() + "\u00B0";
+			Text.GetComponent<Text>().text = $"t = {time.ToString("0.00")}\n" + output + "\n\n" + rM;
+
+			Quaternion rotation = Quaternion.Euler(0, 0, angleI);
+
+			//Rotate(guide, rotation);
+			guide.transform.localRotation = rotation;
+
+			for (int i = 0; i < canvas.Length; i++)
+			{
+				if (rotates)
+					RotateM(canvas[i], angleI - oldAngle);
+
+				//StartCoroutine(RotateQ(canvas[i], angleI));
+
+				StartCoroutine(ChangePixel(canvas[i], i, time, image[iSwitch]));
+				if (i % 100 == 0) // Pause every 100 iterations.
+				{
+					yield return new WaitForSeconds(0.01f);
+				}
+			}
+			oldAngle = angleI;
+			angleI += 1;
+
 		}
-		
-		StartCoroutine(Transition(canvas)); // Repeat recursively.
 	}
 	void GetPixelColours(Texture2D image)
 	{
@@ -188,13 +220,15 @@ public class TestSettings : MonoBehaviour
 	{
 		int i = 0;
 		currentCanvas = new Color[image[0].width * image[0].height];
+		TransformMatrices = new Matrix[currentCanvas.Length];
 		for (int x = 0; x < image[0].width; x++)
 		{
 			for (int y = 0; y < image[0].height; y++)
 			{
 				currentCanvas[i] = new Color(0, 0, 0);
 				canvas[i] = Instantiate(templateObj);
-				canvas[i].transform.position = new Vector3((x * 10f), (y * 10f), 0);
+				canvas[i].transform.position = new Vector3(CanvasOffset.x + (x * 10f), CanvasOffset.y + (y * 10f), CanvasOffset.z);
+				TransformMatrices[i] = Matrix.Identity(3);
 				i++;
 			}
 		}

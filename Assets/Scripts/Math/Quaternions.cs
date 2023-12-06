@@ -1,3 +1,6 @@
+using MathU.Matrices;
+using UnityEngine;
+
 namespace MathU
 {
 	public class Quaternions
@@ -28,6 +31,14 @@ namespace MathU
 				this.j = value;
 				this.k = value;
 				this.w = value;
+			}
+
+			public Quaternion(UnityEngine.Quaternion q)
+			{
+				this.i = q.x;
+				this.j = q.y;
+				this.k = q.z;
+				this.w = q.w;
 			}
 
 			public static Quaternion Identity
@@ -106,6 +117,17 @@ namespace MathU
 				return new string($"{w} {i} {j} {k}");
 			}
 
+			public Matrix ToColumn()
+			{
+				Matrix res = new Matrix(4, 1);
+
+				res[0, 0] = this.i;
+				res[1, 0] = this.j;
+				res[2, 0] = this.k;
+				res[3, 0] = this.w;
+
+				return res;
+			}
 
 		}
 	}

@@ -355,15 +355,50 @@ namespace MathU.Matrices
 
 		}
 
-		public static Matrix Rotate(UnityEngine.Quaternion quat)
+		public static Matrix Rotate(Quaternion q)
 		{
-			Matrix xR = Rotation(quat.x, "x");
-			Matrix yR = Rotation(quat.y, "y");
-			Matrix zR = Rotation(quat.z, "z");
 
+			// Precalculate coordinate products
+			float x = q.x * 2.0F;
+			float y = q.y * 2.0F;
+			float z = q.z * 2.0F;
+			float xx = q.x * x;
+			float yy = q.y * y;
+			float zz = q.z * z;
+			float xy = q.x * y;
+			float xz = q.x * z;
+			float yz = q.y * z;
+			float wx = q.w * x;
+			float wy = q.w * y;
+			float wz = q.w * z;
 
-			return zR * yR * xR;
+			// Calculate 3x3 matrix from orthonormal basis
+			Matrix res = new Matrix(4, 4);
 
+			res[0, 0] = 1.0f - (yy + zz); 
+			res[0, 1] = xy + wz;
+			res[0, 2] = xz - wy;
+			res[0, 3] = 0f;
+
+			//m.m01 = xy - wz; m.m11 = 1.0f - (xx + zz); m.m21 = yz + wx; m.m31 = 0.0F;
+			res[1, 0] = xy - wz;
+			res[1, 1] = 1.0f - (xx + zz);
+			res[1, 2] = yz + wx;
+			res[1, 3] = 0.0f;
+
+			//m.m02 = xz + wy; m.m12 = yz - wx; m.m22 = 1.0f - (xx + yy); m.m32 = 0.0F;
+			res[2, 0] = xz + wy;
+			res[2, 1] = yz - wx;
+			res[2, 2] = 1.0f - (xx + yy);
+			res[2, 3] = 0;
+
+			//m.m03 = 0.0F; m.m13 = 0.0F; m.m23 = 0.0F; m.m33 = 1.0F;
+			res[3, 0] = 0;
+			res[3, 1] = 0;
+			res[3, 2] = 0;
+			res[3, 3] = 1.0f;
+
+			return res;
 		}
 
 		public static Matrix Rotation(float angle, string axis)
@@ -471,13 +506,19 @@ namespace MathU.Matrices
 			return P;
 		}
 
+		public static Matrix Translate(Vector3 v)
+		{
+			Matrix result = Matrix.Identity(3);
+
+			result[0, 0] = v.x;
+			result[1, 1] = v.y;
+			result[2, 2] = v.z;
+
+			return result;
+		}
 		public Vector3 ToVector()
 		{
-			if (this.rows == 3 && this.cols == 1)
-			{
-				return new Vector3((float)this[0, 0], (float)this[1, 0], (float)this[2, 0]);
-			}
-			return new Vector3(0, 0, 0);
+			return new Vector3((float)this[0, 0], (float)this[1, 0], (float)this[2, 0]);
 		}
 	}
 }
