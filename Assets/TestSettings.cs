@@ -156,7 +156,7 @@ public class TestSettings : MonoBehaviour
 	{
 		while (true)
 		{
-			yield return new WaitForSeconds(0.2f);
+			yield return new WaitForSeconds(0.05f);
 
 			float eulerAngle = angleI - oldAngle * (Mathf.PI / 180);
 

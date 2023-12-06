@@ -357,7 +357,6 @@ namespace MathU.Matrices
 
 		public static Matrix Rotate(Quaternion q)
 		{
-
 			// Precalculate coordinate products
 			float x = q.x * 2.0F;
 			float y = q.y * 2.0F;
