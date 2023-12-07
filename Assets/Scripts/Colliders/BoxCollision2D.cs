@@ -40,7 +40,7 @@ namespace MAT102.Colliders
 			this.height = A.z - D.z;
 
 			this.position = position;
-			Debug.Log($"A {A}\nB {B}\n C {C}\nD {D}\nWidth: {width}\nHeight: {height}");
+			//Debug.Log($"A {A}\nB {B}\n C {C}\nD {D}\nWidth: {width}\nHeight: {height}");
 			UpdateGlobalVertices(position);
 
 		}
@@ -54,6 +54,30 @@ namespace MAT102.Colliders
 				this.position.z + this.height > other.position.z
 			);
 			return colliding;
+		}
+
+		public float Collision(BoxCollision2D other)
+		{
+			float overlapX = Mathf.Max(0, Mathf.Min(this.position.x + this.width, other.position.x + other.width) - Mathf.Max(this.position.x, other.position.x));
+			float overlapZ = Mathf.Max(0, Mathf.Min(this.position.z + this.height, other.position.z + other.height) - Mathf.Max(this.position.z, other.position.z));
+
+			float totalOverlap = overlapX * overlapZ;
+
+			float smallestArea = Mathf.Min(this.width * this.height, other.width * other.height);
+
+			float normalizedOverlap = totalOverlap / smallestArea;
+
+			return normalizedOverlap;
+		}
+
+		public Vector3 PushDirection(BoxCollision2D other)
+		{
+			Vector3 thisCenter = new Vector3(this.position.x + this.width / 2, 0, this.position.z + this.height / 2);
+			Vector3 otherCenter = new Vector3(other.position.x + other.width / 2, 0, other.position.z + other.height / 2);
+
+			Vector3 pushDir = thisCenter - otherCenter;
+
+			return pushDir.normalized;
 		}
 
 		public void UpdateGlobalVertices(Vector3 position)

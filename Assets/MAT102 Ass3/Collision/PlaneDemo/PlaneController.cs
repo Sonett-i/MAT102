@@ -17,8 +17,13 @@ public class PlaneController : MonoBehaviour
 
 
     // Collision
-    BoxCollision2D boxCollision;
+    public BoxCollision2D boxCollision;
 
+    public bool colliding = false;
+
+    public Vector3 position;
+
+    GameObject player;
     void UpdateLabels()
 	{
         Vector3[] points = boxCollision.GetPoints();
@@ -35,6 +40,8 @@ public class PlaneController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        position = this.transform.position;
+
         textMeshArray = new TextMeshProUGUI[]
         {
 			TextObjects[0].GetComponent<TextMeshProUGUI>(),
@@ -45,16 +52,30 @@ public class PlaneController : MonoBehaviour
 
         infoText = InfoTextObject.GetComponent<TextMeshProUGUI>();
         boxCollision = new BoxCollision2D(this.transform.Find("Plane").GetComponent<MeshFilter>().mesh.vertices, this.transform.position);
-    }
 
+        player = GameObject.FindWithTag("Player");
+    }
+    
     void CheckCollision()
 	{
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Plane");
-        bool colliding = false;
+        GameObject[] colGos = GameObject.FindGameObjectsWithTag("Plane");
 
-        foreach (GameObject obj in gameObjects)
-		{
-            colliding = obj.GetComponent<PlaneController>().boxCollision.Colliding(boxCollision);
+        for (int i = 0; i < colGos.Length; i++)
+        {
+            colliding = colGos[i].GetComponent<PlaneController>().boxCollision.Colliding(boxCollision);
+            float overlapAmount = boxCollision.Collision(colGos[i].GetComponent<PlaneController>().boxCollision);
+
+
+            if (colliding)
+            {
+                colGos[i].GetComponent<PlaneController>().colliding = true;
+                colGos[i].GetComponent<PlaneController>().position -= boxCollision.PushDirection(colGos[i].GetComponent<PlaneController>().boxCollision);
+                Debug.Log($"Overlap: {overlapAmount}");
+            }
+            else
+            {
+                colGos[i].GetComponent<PlaneController>().colliding = false;
+            }
         }
 
         if (colliding)
@@ -75,4 +96,9 @@ public class PlaneController : MonoBehaviour
         UpdateLabels();
         CheckCollision();
     }
+
+	private void FixedUpdate()
+	{
+        this.transform.position = position * Time.deltaTime * 2; 
+	}
 }

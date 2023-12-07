@@ -125,38 +125,23 @@ public class TestSettings : MonoBehaviour
 	Vector3 oldY = Vector3.zero;
 	Vector3 oldZ = Vector3.zero;
 
-	void RotateM(GameObject go, float angle)
+	void RotateM(GameObject go, Matrix mR, Quaternion q)
 	{
 		float angleD = angle * Mathf.Deg2Rad;
 
 		// Transform Position
-		Matrix mQ = Matrix.Rotation(angleD, "z");
-
+		
 		Matrix vT = new MathU.Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z).ToColumn();
-		Matrix vR = mQ * vT;
-
-		rM = mQ.ToString();
+		Matrix vR = mR * vT;
 
 		// Transform Rotation
 		go.transform.position = vR.ToVector().ToUnity();
 
-		Quaternion qX = MathU.Quaternions.Quaternion.Euler(-90, 0, 0);
-		Quaternion qY = MathU.Quaternions.Quaternion.Euler(0, 0, 0);
-		Quaternion qZ = MathU.Quaternions.Quaternion.Euler(0, 0, angleI);
-
-
-		Debug.Log($"X: Mine: {qX.ToString()} \n Theirs: {Quaternion.Euler(-90, 0, 0)}");
-
-		Debug.Log($"Z: Mine: {qZ.ToString()} \n Theirs: {Quaternion.Euler(0, 0, angleI)}");
-
-		//Quaternion qX = Quaternion.Euler(-90, 0, 0);
-		//Quaternion qY = Quaternion.Euler(0, 0, 0);
-		//Quaternion qZ = Quaternion.Euler(0, 0, angleI);
-
-		Quaternion q = qZ * qX * qY;
+		// Object Rotation
 		go.transform.rotation = q;
 	}
 
+	//go.transform.rotation = q;
 	void RotateQ(GameObject go, float angle)
 	{
 
@@ -170,12 +155,8 @@ public class TestSettings : MonoBehaviour
 	{
 		while (true)
 		{
-			yield return new WaitForSeconds(0.05f);
 
 			float eulerAngle = angleI - oldAngle * (Mathf.PI / 180);
-
-			if (angleI > 360)
-				angleI = 0;
 
 			if (time >= 1.0f)
 			{
@@ -194,17 +175,27 @@ public class TestSettings : MonoBehaviour
 			output = angleI.ToString() + "\u00B0";
 			Text.GetComponent<Text>().text = $"t = {time.ToString("0.00")}\n" + output + "\n\n" + rM;
 
-			Quaternion rotation = Quaternion.Euler(0, 0, angleI);
+			// Guide Ruler
+			guide.transform.localRotation = Quaternion.Euler(0, 0, angleI);
 
-			//Rotate(guide, rotation);
-			guide.transform.localRotation = rotation;
+
+			// Rotation Matrix of 1 degree around the z axis.
+			Matrix mR = Matrix.Rotation((angleI-oldAngle) * Mathf.Deg2Rad, "z");
+			
+			
+
+			Quaternion qX = MathU.Quaternions.Quaternion.Euler(-90, 0, 0);
+			Quaternion qY = MathU.Quaternions.Quaternion.Euler(0, 0, 0);
+			Quaternion qZ = MathU.Quaternions.Quaternion.Euler(0, 0, angleI);
+
+			Quaternion q = qZ * qX * qY;
+
+			rM = mR.ToString() + "\n\n(x,\t\t\ty,\t\t\tz,\t\t\tw)\n" + q.ToString(); // Canvas Text Output
 
 			for (int i = 0; i < canvas.Length; i++)
 			{
 				if (rotates)
-					RotateM(canvas[i], angleI - oldAngle);
-
-				//StartCoroutine(RotateQ(canvas[i], angleI));
+					RotateM(canvas[i], mR, q);
 
 				StartCoroutine(ChangePixel(canvas[i], i, time, image[iSwitch]));
 				if (i % 100 == 0) // Pause every 100 iterations.

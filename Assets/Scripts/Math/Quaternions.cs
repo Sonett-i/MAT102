@@ -144,13 +144,6 @@ namespace MathU
 				float c3 = Mathf.Cos(z); //C3
 				float s3 = Mathf.Sin(z); //S3
 
-				/*
-				 * x = s1 s2 c3 +c1 c2 s3
-				 * y = s1 c2 c3 + c1 s2 s3
-				 * z = c1 s2 c3 - s1 c2 s3
-				 * w = c1 c2 c3 - s1 s2 s3
-				 */
-
 				// Permuted due to unity cardinal system.
 
 				UnityEngine.Quaternion result = new UnityEngine.Quaternion(0,0,0,0);
