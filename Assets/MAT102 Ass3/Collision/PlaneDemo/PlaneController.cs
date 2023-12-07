@@ -25,6 +25,7 @@ public class PlaneController : MonoBehaviour
     public float speed = 1;
 
     GameObject player;
+
     void UpdateLabels()
 	{
         Vector3[] points = boxCollision.GetPoints();
@@ -58,36 +59,34 @@ public class PlaneController : MonoBehaviour
     
     void CheckCollision()
 	{
-        GameObject[] colGos = GameObject.FindGameObjectsWithTag("Plane");
+        GameObject[] colGob = GameObject.FindGameObjectsWithTag("Plane");
 
-        for (int i = 0; i < colGos.Length; i++)
+        for (int i = 0; i < colGob.Length; i++)
         {
-            colliding = colGos[i].GetComponent<PlaneController>().boxCollision.Colliding(boxCollision);
-            float overlapAmount = boxCollision.Collision(colGos[i].GetComponent<PlaneController>().boxCollision);
+            PlaneController pc = colGob[i].GetComponent<PlaneController>();
+
+
+            colliding = pc.boxCollision.Colliding(boxCollision);
+            float overlapAmount = boxCollision.Collision(pc.boxCollision);
+
 
 
             if (colliding)
             {
-                colGos[i].GetComponent<PlaneController>().colliding = true;
-                colGos[i].GetComponent<PlaneController>().position -= boxCollision.PushDirection(colGos[i].GetComponent<PlaneController>().boxCollision);
-                colGos[i].GetComponent<PlaneController>().speed = overlapAmount;
-                Debug.Log($"Overlap: {overlapAmount}");
+                Debug.Log(overlapAmount + pc.name);
+                pc.colliding = true;
+                pc.position -= boxCollision.PushDirection(pc.boxCollision);
+                pc.speed = overlapAmount;
+                
             }
             else
             {
-                colGos[i].GetComponent<PlaneController>().colliding = false;
+                pc.colliding = false;
             }
         }
-
-        if (colliding)
-		{
-            this.GetComponentInChildren<MeshRenderer>().material.color = new Color(1, 0, 0);
-        }
-        else
-		{
-            this.GetComponentInChildren<MeshRenderer>().material.color = new Color(1, 1, 1);
-        }
 	}
+
+
     // Update is called once per frame
     void Update()
     {
