@@ -14,9 +14,9 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        position = this.transform.position;
 
         boxCollision = new BoxCollision2D(this.GetComponent<MeshFilter>().mesh.vertices, this.transform.position);
-        Debug.Log(boxCollision.Points(WorldSpace.local));
     }
 
     void HandleMovement()
@@ -45,8 +45,10 @@ public class PlayerController : MonoBehaviour
             else
 			{
                 colGos[i].GetComponent<PlaneController>().colliding = false;
-			}
+            }
         }
+
+
 
     }
     // Update is called once per frame
@@ -63,6 +65,6 @@ public class PlayerController : MonoBehaviour
 
 	void FixedUpdate()
 	{
-        this.transform.position = position * Time.deltaTime * moveSpeed;
+        this.transform.position += position * Time.deltaTime * moveSpeed;
     }
 }

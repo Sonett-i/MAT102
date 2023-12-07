@@ -22,6 +22,7 @@ public class PlaneController : MonoBehaviour
     public bool colliding = false;
 
     public Vector3 position;
+    public float speed = 1;
 
     GameObject player;
     void UpdateLabels()
@@ -40,7 +41,6 @@ public class PlaneController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        position = this.transform.position;
 
         textMeshArray = new TextMeshProUGUI[]
         {
@@ -53,7 +53,7 @@ public class PlaneController : MonoBehaviour
         infoText = InfoTextObject.GetComponent<TextMeshProUGUI>();
         boxCollision = new BoxCollision2D(this.transform.Find("Plane").GetComponent<MeshFilter>().mesh.vertices, this.transform.position);
 
-        player = GameObject.FindWithTag("Player");
+        //player = GameObject.FindWithTag("Player");
     }
     
     void CheckCollision()
@@ -70,6 +70,7 @@ public class PlaneController : MonoBehaviour
             {
                 colGos[i].GetComponent<PlaneController>().colliding = true;
                 colGos[i].GetComponent<PlaneController>().position -= boxCollision.PushDirection(colGos[i].GetComponent<PlaneController>().boxCollision);
+                colGos[i].GetComponent<PlaneController>().speed = overlapAmount;
                 Debug.Log($"Overlap: {overlapAmount}");
             }
             else
@@ -97,8 +98,8 @@ public class PlaneController : MonoBehaviour
         CheckCollision();
     }
 
-	private void FixedUpdate()
+	void FixedUpdate()
 	{
-        this.transform.position = position * Time.deltaTime * 2; 
+        this.transform.position += position * (Time.deltaTime * speed); 
 	}
 }
