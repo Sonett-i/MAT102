@@ -129,6 +129,40 @@ namespace MathU
 				return res;
 			}
 
+			public static UnityEngine.Quaternion Euler(float x, float y, float z)
+			{
+				x = (x * Mathf.Deg2Rad) / 2;
+				y = (y * Mathf.Deg2Rad) / 2;
+				z = (z * Mathf.Deg2Rad) / 2;
+
+				float c1 = Mathf.Cos(x); //C1
+				float s1 = Mathf.Sin(x); //S1
+
+				float c2 = Mathf.Cos(y); //C2
+				float s2 = Mathf.Sin(y); //S2
+
+				float c3 = Mathf.Cos(z); //C3
+				float s3 = Mathf.Sin(z); //S3
+
+				/*
+				 * x = s1 s2 c3 +c1 c2 s3
+				 * y = s1 c2 c3 + c1 s2 s3
+				 * z = c1 s2 c3 - s1 c2 s3
+				 * w = c1 c2 c3 - s1 s2 s3
+				 */
+
+				// Permuted due to unity cardinal system.
+
+				UnityEngine.Quaternion result = new UnityEngine.Quaternion(0,0,0,0);
+
+				result.x = c1 * c2 * c3 + s1 * s2 * s3;
+				result.y = c1 * c2 * s3 - s1 * s2 * c3;
+				result.z = c1 * s2 * c3 + s1 * c2 * s3;
+				result.w = s1 * c2 * c3 - c1 * s2 * s3;
+
+				return result;
+			}
+
 		}
 	}
 }

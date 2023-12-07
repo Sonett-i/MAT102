@@ -7,7 +7,6 @@ namespace MathU.Matrices
 	{
 		public int rows { get; set; }
 		public int cols { get; set; }
-
 		public double[,] data { get; set; }
 
 		public Matrix(int rows, int cols)
@@ -346,13 +345,42 @@ namespace MathU.Matrices
 
 		public static Matrix Rotate(UnityEngine.Vector3 vector)
 		{
-			Matrix xR = Rotation(vector.x, "x");
-			Matrix yR = Rotation(vector.y, "y");
-			Matrix zR = Rotation(vector.z, "z");
+			Matrix rX = Rotation(vector.x, "x");
+			Matrix rY = Rotation(vector.y, "y");
+			Matrix rZ = Rotation(vector.z, "z");
 
 
-			return zR * yR * xR;
+			return rZ * rY * rX;
 
+		}
+
+		public static Matrix Rotation(float angle, string axis)
+		{
+			Matrix result = Matrix.Identity(3);
+
+			if (axis == "x")
+			{
+				result.data[1, 1] = MathF.Cos(angle);
+				result.data[1, 2] = -MathF.Sin(angle);
+				result.data[2, 1] = MathF.Sin(angle);
+				result.data[2, 2] = MathF.Cos(angle);
+			}
+			else if (axis == "y")
+			{
+				result.data[0, 0] = MathF.Cos(angle);
+				result.data[0, 2] = MathF.Sin(angle);
+				result.data[2, 0] = -MathF.Sin(angle);
+				result.data[2, 2] = MathF.Cos(angle);
+			}
+			else if (axis == "z")
+			{
+				result.data[0, 0] = MathF.Cos(angle);
+				result.data[0, 1] = -MathF.Sin(angle);
+				result.data[1, 0] = MathF.Sin(angle);
+				result.data[1, 1] = MathF.Cos(angle);
+			}
+
+			return result;
 		}
 
 		public static Matrix Rotate(Quaternion q)
@@ -398,35 +426,6 @@ namespace MathU.Matrices
 			res[3, 3] = 1.0f;
 
 			return res;
-		}
-
-		public static Matrix Rotation(float angle, string axis)
-		{
-			Matrix result = Matrix.Identity(3);
-
-			if (axis == "x")
-			{
-				result.data[1, 1] = MathF.Cos(angle);
-				result.data[1, 2] = -MathF.Sin(angle);
-				result.data[2, 1] = MathF.Sin(angle);
-				result.data[2, 2] = MathF.Cos(angle);
-			}
-			else if (axis == "y")
-			{
-				result.data[0, 0] = MathF.Cos(angle);
-				result.data[0, 2] = MathF.Sin(angle);
-				result.data[2, 0] = -MathF.Sin(angle);
-				result.data[2, 2] = MathF.Cos(angle);
-			}
-			else if (axis == "z")
-			{
-				result.data[0, 0] = MathF.Cos(angle);
-				result.data[0, 1] = -MathF.Sin(angle);
-				result.data[1, 0] = MathF.Sin(angle);
-				result.data[1, 1] = MathF.Cos(angle);
-			}
-
-			return result;
 		}
 
 		public Matrix Minors()

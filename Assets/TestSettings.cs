@@ -13,9 +13,9 @@ public class TestSettings : MonoBehaviour
 	[SerializeField] GameObject guide;
 
 	[SerializeField] GameObject Text;
-	
+
 	[SerializeField] GameObject[] objects;
-	[SerializeField][Range(0,1200)] float angle = 0;
+	[SerializeField][Range(0, 1200)] float angle = 0;
 
 	[SerializeField] int[] box = new int[2];
 	[SerializeField] GameObject templateObj;
@@ -55,7 +55,7 @@ public class TestSettings : MonoBehaviour
 		Vector3 End = new Vector3(Radians, Mathf.Sin(Radians), 0);
 		Debug.Log(Radians + " " + angle + " " + result);
 		gobject.transform.position = LinearInterpolation.LinearInterpolation.Lerp(Start, End, result);
-		
+
 	}
 
 	IEnumerator SlowGen()
@@ -84,7 +84,7 @@ public class TestSettings : MonoBehaviour
 		Time.timeScale = 1;
 		canvas = new GameObject[image[0].width * image[0].height];
 		Pixels = new Color[image[0].width * image[0].height];
-		
+
 		if (!StaticCamera)
 		{
 			StartCoroutine(MoveCamera());
@@ -120,6 +120,11 @@ public class TestSettings : MonoBehaviour
 
 	string rM = "";
 
+
+	Vector3 oldX = Vector3.zero;
+	Vector3 oldY = Vector3.zero;
+	Vector3 oldZ = Vector3.zero;
+
 	void RotateM(GameObject go, float angle)
 	{
 		float angleD = angle * Mathf.Deg2Rad;
@@ -131,13 +136,22 @@ public class TestSettings : MonoBehaviour
 		Matrix vR = mQ * vT;
 
 		rM = mQ.ToString();
-		
+
 		// Transform Rotation
 		go.transform.position = vR.ToVector().ToUnity();
 
-		Quaternion qX = Quaternion.Euler(-90, 0, 0);
-		Quaternion qY = Quaternion.Euler(0, 0, 0);
-		Quaternion qZ = Quaternion.Euler(0, 0, angleI);
+		Quaternion qX = MathU.Quaternions.Quaternion.Euler(-90, 0, 0);
+		Quaternion qY = MathU.Quaternions.Quaternion.Euler(0, 0, 0);
+		Quaternion qZ = MathU.Quaternions.Quaternion.Euler(0, 0, angleI);
+
+
+		Debug.Log($"X: Mine: {qX.ToString()} \n Theirs: {Quaternion.Euler(-90, 0, 0)}");
+
+		Debug.Log($"Z: Mine: {qZ.ToString()} \n Theirs: {Quaternion.Euler(0, 0, angleI)}");
+
+		//Quaternion qX = Quaternion.Euler(-90, 0, 0);
+		//Quaternion qY = Quaternion.Euler(0, 0, 0);
+		//Quaternion qZ = Quaternion.Euler(0, 0, angleI);
 
 		Quaternion q = qZ * qX * qY;
 		go.transform.rotation = q;
@@ -250,11 +264,11 @@ public class TestSettings : MonoBehaviour
 			{
 				if (itr == 0)
 				{
-					Camera.main.transform.position = LinearInterpolation.LinearInterpolation.Lerp(cameraStart, cameraEnd, t/Duration);
+					Camera.main.transform.position = LinearInterpolation.LinearInterpolation.Lerp(cameraStart, cameraEnd, t / Duration);
 				}
 				else
 				{
-					Camera.main.transform.position = LinearInterpolation.LinearInterpolation.Lerp(cameraEnd, cameraStart, t/Duration);
+					Camera.main.transform.position = LinearInterpolation.LinearInterpolation.Lerp(cameraEnd, cameraStart, t / Duration);
 				}
 				t += Time.deltaTime;
 				yield return new WaitForSeconds(Time.deltaTime);
