@@ -69,11 +69,9 @@ public class PlaneController : MonoBehaviour
             colliding = pc.boxCollision.Colliding(boxCollision);
             float overlapAmount = boxCollision.Collision(pc.boxCollision);
 
-
-
             if (colliding)
             {
-                Debug.Log(overlapAmount + pc.name);
+                //Debug.Log(overlapAmount + pc.name);
                 pc.colliding = true;
                 pc.position -= boxCollision.PushDirection(pc.boxCollision);
                 pc.speed = overlapAmount;

@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
         position.z = Input.GetAxisRaw("Vertical");
     }
 
-
+    float overlapAmount;
     void CheckCollision()
 	{
         GameObject[] colGos = GameObject.FindGameObjectsWithTag("Plane");
@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < colGos.Length; i++)
 		{
             colliding = colGos[i].GetComponent<PlaneController>().boxCollision.Colliding(boxCollision);
-            float overlapAmount = boxCollision.Collision(colGos[i].GetComponent<PlaneController>().boxCollision);
+            overlapAmount = boxCollision.Collision(colGos[i].GetComponent<PlaneController>().boxCollision);
 			
 
             if (colliding)
@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
                 colGos[i].GetComponent<PlaneController>().colliding = true;
                 colGos[i].GetComponent<PlaneController>().position -= boxCollision.PushDirection(colGos[i].GetComponent<PlaneController>().boxCollision);
                 Debug.Log($"Overlap: {overlapAmount}");
+
             }
             else
 			{
@@ -61,10 +62,15 @@ public class PlayerController : MonoBehaviour
         boxCollision.Update(this.GetComponent<MeshFilter>().mesh.vertices, this.transform.position);
 
         CheckCollision();
+
+        if (colliding)
+		{
+            Debug.Log($"Overlap: {overlapAmount}");
+        }
     }
 
 	void FixedUpdate()
 	{
-        this.transform.position += position * Time.deltaTime * moveSpeed;
+            this.transform.position += position * Time.deltaTime * moveSpeed;
     }
 }
